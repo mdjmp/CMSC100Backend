@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/mdjmp/cmsc100backend/issues"
   },
-  "homepage": "https://github.com/mdjmp/cmsc100backend#readme"
+  "homepage": "https://github.com/mdjmp/cmsc100backend#readme",
+  "dependencies": {
+    "fastify": "^3.18.1"
+  }
 }
