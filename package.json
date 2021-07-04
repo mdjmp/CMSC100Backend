@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "npx nodemon"
   },
   "repository": {
     "type": "git",
@@ -19,5 +19,8 @@
   "homepage": "https://github.com/mdjmp/cmsc100backend#readme",
   "dependencies": {
     "fastify": "^3.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.9"
   }
 }
