@@ -1,0 +1,19 @@
+{
+  "name": "backend-basics",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdjmp/cmsc100backend.git"
+  },
+  "author": "Jen Perez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mdjmp/cmsc100backend/issues"
+  },
+  "homepage": "https://github.com/mdjmp/cmsc100backend#readme"
+}
