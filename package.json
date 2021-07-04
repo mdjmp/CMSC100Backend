@@ -21,6 +21,8 @@
     "fastify": "^3.18.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.9"
+    "nodemon": "^2.0.9",
+    "should": "^13.2.3",
+    "tap": "^15.0.9"
   }
 }
