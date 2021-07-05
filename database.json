@@ -1,0 +1,11 @@
+{
+  "todos": [
+    {
+      "id": "b33ef464-4e4b-4db5-8ade-45b6d1252f7f",
+      "text": "this is the og todo",
+      "done": false,
+      "dateCreated": 1625472141976,
+      "dateUpdated": 1625472141976
+    }
+  ]
+}
