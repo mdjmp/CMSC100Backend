@@ -8,19 +8,30 @@ const { join } = require('path');
  */
 exports.get = app => {
   /**
-   * This gets one todos from the database given a unique id
+   * This gets one todos from the database give a unique ID
    *
    * @param {import('fastify').FastifyRequest} request
+   * @param {import('fastify').FastifyReply<Response>} response
    */
-  app.get('/todo/:id', (request) => {
+  app.get('/todo/:id', (request,response) => {
     const { params } = request;
-    const {id} = params;
+    const { id } = params;
 
     const encoding = 'utf8';
     const filename = join(__dirname, '../../database.json');
     const todos = getTodos(filename, encoding);
 
-    const index  = todos.findIndex(todo => todo.id ===id);
+    const index = todos.findIndex(todo => todo.id === id);
+
+    if(index < 0) {
+        return response
+            .code(404)
+            .send({
+                success: false,
+                code: 'todo/not-found',
+                message: 'Todo doesnt exist'
+            });
+    }
 
     const data = todos[index];
 
