@@ -1,60 +1,63 @@
-const {v4: uuid} = require('uuid');
-const { readFileSync, writeFileSync} = require('fs');
-const {join} = require('path')
+const { v4: uuid } = require('uuid');
+const { readFileSync, writeFileSync } = require('fs');
+const { join } = require('path');
 
 /**
  * this is the route for creating todos
- * 
- * @param {*} app 
+ *
+ * @param {*} app
  */
-exports.create = (app) => {
-    app.post('/todo', {
-        /**
-         * handles request for a given route
-         * @param {import('fastify').FastifyRequest} request 
-         * @param {import('fastify').FastifyReply<Response>} response 
-         */
-        handler: async (request, response) => {
-            //creates a unique identifier
-            const id = uuid();
-            const { body } = request;
-            //get text and done with default false from body, regardless if it has an object value or null whihch makes it return any empty object
-            const { text, done = false } = body || {};
+exports.create = app => {
+  app.post('/todo', {
+    /**
+     * handles the request for a given route
+     *
+     * @param {import('fastify').FastifyRequest} request
+     * @param {import('fastify').FastifyReply<Response>} response
+     */
+    handler: async (request, response) => {
+      // creates a unique identifier
+      const id = uuid();
+      const { body } = request;
+      // get text and done with default false from body, regardless if it has
+      // a object value or null, which makes it return an empty object.
+      const { text, done = false } = body || {};
 
-            if(!text){
-                return response
-                    .code(400)
-                    .send({
-                        success:false,
-                        code:'todo/malformed',
-                        message: 'Payload doesnt have text property'
-                    });
-            }
-            
-            const filename = join(__dirname,'../../database.json');
-            const encoding = 'utf8';
+      if (!text) {
+        return response
+          .code(400)
+          .send({
+            success: false,
+            code: 'todo/malformed',
+            message: 'Payload doesn\'t have text property'
+          });
+      }
 
-            const databaseStringContents = readFileSync(filename,encoding);
-            const database = JSON.parse(databaseStringContents);
+      const filename = join(__dirname, '../../database.json');
+      const encoding = 'utf8';
 
-            const data = {
-                id,
-                text,
-                done,
-                dateCreated: new Date().getTime(),
-                dateUpdated: new Date().getTime()
-            };
+      const databaseStringContents = readFileSync(filename, encoding);
+      const database = JSON.parse(databaseStringContents);
 
-            database.todos.push(data);
+      const data = {
+        id,
+        text,
+        done,
+        dateCreated: new Date().getTime(), // UNIX Epoch Time in milliseconds
+        dateUpdated: new Date().getTime()
+      };
 
-            //we added null and 2 when stringifying the object so that the JSON file looks visually understandable
-            const newDatabaseStringContents = JSON.stringify(database,null,2);
-            writeFileSync(filename,newDatabaseStringContents,encoding);
+      database.todos.push(data);
 
-            return {
-                success: true,
-                data
-            }
-        }
-    })
+      // we added null and 2 when stringify-ing the object so that
+      // the JSON file looks visually understandable
+      const newDatabaseStringContents = JSON.stringify(database, null, 2);
+      writeFileSync(filename, newDatabaseStringContents, encoding);
+
+      return {
+        success: true,
+        data
+      }
+    }
+  })
 };

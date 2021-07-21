@@ -1,11 +1,12 @@
-const {create} = require('./create');
-const {getMany} = require('./get-many');
-/**
- * initialize all routes for todo
- * @param {*} app 
- */
+const { create } = require('./create');
+const { getMany } = require('./get-many');
 
- exports.todo = (app) => {
-    create(app);
-    getMany(app);
+/**
+ * initialize all the routes for todo
+ *
+ * @param {*} app
+ */
+exports.todo = app => {
+  create(app);
+  getMany(app);
 }

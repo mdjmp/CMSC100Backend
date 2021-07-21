@@ -1,28 +1,26 @@
 const { build } = require('../app');
-
 require('tap').mochaGlobals();
 require('should');
 
 describe('For the route for root (/)', () => {
-    let app;
+  let app;
 
-    before(async () => {
-        //initialize backend app
-        app = await build();
+  before(async () => {
+    // initialize the backend applicaiton
+    app = await build();
+  })
 
-    })
+  it('it should return { success: true } and has a status code of 200 when called using GET', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/'
+    });
 
-    it('it should return {success: true} and has a status code of 200 when called using GET', async () => {
-        const response = await app.inject({
-            method: 'GET',
-            url: '/'
-        });
+    const payload = response.json();
+    const { statusCode } = response;
+    const { success } = payload;
 
-        const payload = response.json();
-        const {statusCode} = response;
-        const {success} = payload;
-        
-        success.should.equal(true);
-        statusCode.should.equal(200);
-    })
+    success.should.equal(true);
+    statusCode.should.equal(200);
+  })
 });
