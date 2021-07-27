@@ -1,16 +1,11 @@
-const { getTodos } = require('../../lib/get-todos');
-const { writeFileSync } = require('fs');
-const { join } = require('path');
+const { mongoose, Todo } = require('../../db');
 const { build } = require('../../app');
 const should = require('should');
 require('tap').mochaGlobals();
 
-
 describe('For the route for creating a todo POST: (/todo)', () => {
   let app;
   const ids = [];
-  const filename = join(__dirname, '../../database.json');
-  const encoding = 'utf8';
 
   before(async () => {
     // initialize the backend applicaiton
@@ -18,19 +13,12 @@ describe('For the route for creating a todo POST: (/todo)', () => {
   });
 
   after(async () => {
-    // clean up the database
-    const todos = getTodos(filename, encoding);
-    for (const id of ids) {
-      // find the index
-      const index = todos.findIndex(todo => todo.id === id);
-
-      // delete the id
-      if (index >= 0) {
-        todos.splice(index, 1);
-      }
-
-      writeFileSync(filename, JSON.stringify({ todos }, null, 2), encoding);
+    // clean up the database'
+    for(const id of ids){
+      await Todo.findOneAndDelete({id});
     }
+
+    await mongoose.connection.close();
   });
 
   // happy path
@@ -54,10 +42,13 @@ describe('For the route for creating a todo POST: (/todo)', () => {
     text.should.equal('This is a todo');
     done.should.equal(false);
 
-    const todos = getTodos(filename, encoding);
-    const index = todos.findIndex(todo => todo.id === id);
-    index.should.not.equal(-1);
-    const { text: textDatabase, done: doneDatabase } = todos[index];
+    const {
+      text: textDatabase,
+      done: doneDatabase
+    } = await Todo
+      .findOne({ id })
+      .exec();
+
     text.should.equal(textDatabase);
     done.should.equal(doneDatabase);
 
@@ -85,10 +76,13 @@ describe('For the route for creating a todo POST: (/todo)', () => {
     text.should.equal('This is a todo 2');
     done.should.equal(false);
 
-    const todos = getTodos(filename, encoding);
-    const index = todos.findIndex(todo => todo.id === id);
-    index.should.not.equal(-1);
-    const { text: textDatabase, done: doneDatabase } = todos[index];
+    const {
+      text: textDatabase,
+      done: doneDatabase
+    } = await Todo
+      .findOne({ id })
+      .exec();
+
     text.should.equal(textDatabase);
     done.should.equal(doneDatabase);
 
