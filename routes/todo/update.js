@@ -1,6 +1,4 @@
-const { getTodos } = require('../../lib/get-todos');
-const { writeFileSync } = require('fs');
-const { join } = require('path');
+const {Todo} = require('../../db');
 
 /**
  * updates one todo
@@ -14,27 +12,11 @@ exports.update = app => {
    * @param {import('fastify').FastifyRequest} request
    * @param {import('fastify').FastifyReply<Response>} response
    */
-  app.put('/todo/:id', (request,response) => {
+  app.put('/todo/:id',async (request,response) => {
     const { params,body } = request;
     const { id } = params;
     // get text and done from body
     const { text, done} = body || {};
-
-    const encoding = 'utf8';
-    const filename = join(__dirname, '../../database.json');
-    const todos = getTodos(filename, encoding);
-
-    const index = todos.findIndex(todo => todo.id === id);
-
-    if(index < 0) {
-      return response
-        .code(404)
-        .send({
-          success: false,
-          code: 'todo/not-found',
-          message: 'Todo doesnt exist'
-        });
-    }
 
     //expect that we should be getting at least a text or a done property
     if(!text && (done === null || done === undefined)) {
@@ -47,22 +29,36 @@ exports.update = app => {
         });
     }
 
-    const data = todos[index];
+    const oldData = await Todo.findOne({id}).exec();
+
+    if(!oldData) {
+      return response
+        .code(404)
+        .send({
+          success: false,
+          code: 'todo/not-found',
+          message: 'Todo doesnt exist'
+        });
+    }
+
+    const update = {};
 
     if(text){
-        data.text = text;
+        update.text = text;
     }
-    if(done){
-        data.done = done;
+    if(done !== undefined && done !== null){
+        update.done = done;
     }
 
-    todos[index] = data;
+    update.dateUpdated = new Date().getTime();
 
-    // we added null and 2 when stringify-ing the object so that
-    // the JSON file looks visually understandable
-    const newDatabaseStringContents = JSON.stringify({todos}, null, 2);
-    writeFileSync(filename, newDatabaseStringContents, encoding);
-
+    const data = await Todo.findOneAndUpdate(
+      {id},
+      update,
+      {new: true}
+    )
+      .exec();
+  
     return {
       success: true,
       data
