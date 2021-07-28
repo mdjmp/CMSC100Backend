@@ -1,21 +1,30 @@
-const {todo} = require('./todo')
+const { todo } = require('./todo');
+const { definitions } = require('../definitions');
+const { SuccessResponse } = definitions;
 /**
- * initialize all routes
- * @param {*} app 
+ * initialize all the routes
+ *
+ * @param {*} app
  */
+exports.routes = app => {
+  // access root address - http://localhost/
+  app.get('/', {
+    schema: {
+      description: 'Server root route',
+      tags: ['Root'],
+      summary: 'Server root route',
+      response: {
+        200: SuccessResponse
+      }
+    },
+    /**
+     * handles the request for a given route
+     */
+    handler: async (req) => {
+      // this is the response in JSON format
+      return { success: true }
+    }
+  });
 
-exports.routes = (app) => {
-    app.get('/', {
-        /**
-         * handles request for a given route
-         */
-        handler: async (req) => {
-            console.log('hello world!!!');
-
-            //reponse in json format
-            return {success: true}
-        }
-    });
-
-    todo(app);
+  todo(app);
 }
