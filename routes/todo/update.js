@@ -35,24 +35,14 @@ exports.update = app => {
       // expect that we should be getting at least a text or a done property
       if (!text && (done === null || done === undefined)) {
         return response
-          .code(400)
-          .send({
-            success: false,
-            code: 'todo/malformed',
-            message: 'Payload doesn\'t have text property'
-          });
+          .badRequest('request/malformed')
       }
 
       const oldData = await Todo.findOne({ id }).exec();
 
       if (!oldData) {
         return response
-          .code(404)
-          .send({
-            success: false,
-            code: 'todo/not-found',
-            message: 'Todo doesn\'t exist'
-          });
+          .notFound('todo/not-found')
       }
 
       const update = {};
