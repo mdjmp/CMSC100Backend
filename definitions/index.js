@@ -15,8 +15,8 @@ const UniqueIDData = {
   const PasswordData = {
     type: 'string',
     description: 'Password string',
-    value: '49e89682b62f4ad0a66d375c54986555',
-    example: '49e89682b62f4ad0a66d375c54986555'
+    value: 'password1234567890',
+    example: 'password1234567890'
   }
   
   const TextData = {
