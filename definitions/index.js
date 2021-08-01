@@ -4,6 +4,13 @@ const UniqueIDData = {
     value: '49e89682-b62f-4ad0-a66d-375c54986555',
     example: '49e89682-b62f-4ad0-a66d-375c54986555'
   };
+
+  const JWTData = {
+    type: 'string',
+    description: 'A JSON Web Token',
+    value: '49e89682-b62f-4ad0-a66d-375c54986555',
+    example: '49e89682-b62f-4ad0-a66d-375c54986555'
+  };
   
   const UsernameData = {
     type: 'string',
@@ -96,7 +103,7 @@ const UniqueIDData = {
     properties: {
       id: UniqueIDData
     }
-  }
+  };
   
   const UserFullData = {
     type: 'object',
@@ -106,8 +113,8 @@ const UniqueIDData = {
       dateUpdated: DateData,
       dateCreated: DateData
     }
-  }
-  
+  };
+   
   const GetOneUserResponse = {
     type: 'object',
     description: 'Returns a a user',
@@ -171,6 +178,16 @@ const UniqueIDData = {
       data: TodoFullData
     }
   }
+
+  const LoginResponse = {
+    type: 'object',
+    description: 'Returns a JWT data',
+    required: ['success', 'data'],
+    properties: {
+      success: SuccessData,
+      data: JWTData
+    }
+  }
   
   exports.definitions = {
     SuccessResponse,
@@ -181,5 +198,6 @@ const UniqueIDData = {
     PostTodoRequest,
     PutTodoRequest,
     PostUserRequest,
-    GetOneUserResponse
+    GetOneUserResponse,
+    LoginResponse
   }  
