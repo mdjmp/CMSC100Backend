@@ -3,10 +3,13 @@ const swagger = require('fastify-swagger');
 const sensible = require('fastify-sensible');
 const auth = require('fastify-auth');
 const jwt = require('fastify-jwt');
+const cookie = require('fastify-cookie');
+const session = require('fastify-session');
+const cors = require('fastify-cors');
 const {readFileSync} = require('fs');
 const {errorHandler} = require('./error-handler');
 const { routes } = require('./routes');
-const {connect, User} = require('./db');
+const {connect, User, DiscardedToken} = require('./db');
 const {definitions} = require('./definitions');
 const {name:title, description, version} = require('./package.json');
 
@@ -23,6 +26,11 @@ exports.build = async (opts = { logger: false, trustProxy: false }) => {
   // initialize our server using Fastify
   const app = fastify(opts);
 
+  app.register(cors, {
+    origin: true,
+    credentials: true
+  })
+
   app.register(sensible).after(() => {
     app.setErrorHandler(errorHandler);
   });
@@ -30,7 +38,7 @@ exports.build = async (opts = { logger: false, trustProxy: false }) => {
   app.register(jwt, {
     secret: {
       private: readFileSync('./cert/keyfile', 'utf8'),
-      public: readFileSync('./cert/keyfile.key.pub', 'utf8')
+      //public: readFileSync('./cert/keyfile.key.pub', 'utf8')
     },
     sign:{
       algorithm: 'RS256',
@@ -44,14 +52,26 @@ exports.build = async (opts = { logger: false, trustProxy: false }) => {
     }
   });
 
+  app.register(cookie);
+  app.register(session, {
+    cookieName: 'sessionToken',
+    secret: readFileSync('./cert/keyfile', 'utf8'),
+    cookie: {
+      secure: false,
+      httpOnly: true
+    },
+    maxAge: 60 * 60
+  });
+
   await app
     .decorate('verifyJWT', async (request,response) => {
-      const {headers} = request;
+      const {headers, session} = request;
       const{authorization}=headers;
+      const {token:cookieToken} = session;
 
       let authorizationToken;
 
-      if(!authprization){
+      if(!authprization && !cookieToken){
         return response.unauthorized('auth/no-authorization-header')
       }
 
@@ -62,18 +82,25 @@ exports.build = async (opts = { logger: false, trustProxy: false }) => {
         [, authorizationToken] = authorization.split('Bearer');
       }
 
-      const token = authorizationToken;
+      const token = authorizationToken || cookieToken;
 
-      try{
+      try {
         await app.jwt.verify(token);
-        const {username} = app.jwt.decode(token);
+        const { username } = app.jwt.decode(token);
 
-        const user = await User.findOne({username}).exec();
+        const discarded = await DiscardedToken.findOne({ username, token }).exec();
 
-        if(!user){
-          return response.unauthorized('auth/no-user')
+        if (discarded) {
+          return response.unauthorized('auth/discarded');
         }
 
+        const user = await User.findOne({ username }).exec();
+
+        if (!user) {
+          return response.unauthorized('auth/no-user');
+        }
+
+        //save user and token
         request.user = user;
         request.token = token;
       }catch (error){
@@ -99,7 +126,17 @@ exports.build = async (opts = { logger: false, trustProxy: false }) => {
       schemes: ['http', 'https'],
       consumes: ['application/json'],
       produces: ['application/json'],
-      definitions
+      definitions,
+      securityDefinitions: {
+        bearer: {
+          type: 'apiKey',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'authorization',
+          in: 'header'
+
+        }
+      }
     }
   })
 

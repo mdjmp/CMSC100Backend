@@ -39,6 +39,8 @@ exports.login = app => {
       const data = app.jwt.sign({
         username
       })
+      
+      request.session.token = data;
 
       return{
         success: true,

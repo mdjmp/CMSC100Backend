@@ -21,8 +21,11 @@
     "bcrypt": "^5.0.1",
     "fastify": "^3.18.1",
     "fastify-auth": "^1.1.0",
+    "fastify-cookie": "^5.3.1",
+    "fastify-cors": "^6.0.2",
     "fastify-jwt": "^3.0.0",
     "fastify-sensible": "^3.1.1",
+    "fastify-session": "^5.2.1",
     "mongoose": "^5.13.3",
     "uuid": "^8.3.2"
   },
