@@ -1,4 +1,4 @@
-const { mongoose} = require('../db');
+const { mongoose } = require('../db');
 const { build } = require('../app');
 require('tap').mochaGlobals();
 require('should');

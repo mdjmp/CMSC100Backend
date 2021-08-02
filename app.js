@@ -38,7 +38,7 @@ exports.build = async (opts = { logger: false, trustProxy: false }) => {
   app.register(jwt, {
     secret: {
       private: readFileSync('./cert/keyfile', 'utf8'),
-      //public: readFileSync('./cert/keyfile.key.pub', 'utf8')
+      public: readFileSync('./cert/keyfile.key.pub', 'utf8')
     },
     sign:{
       algorithm: 'RS256',

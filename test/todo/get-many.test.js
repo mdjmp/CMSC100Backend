@@ -1,21 +1,47 @@
 const { delay } = require('../../lib/delay');
-const { mongoose, Todo } = require('../../db');
+const { mongoose, Todo,User } = require('../../db');
 const { build } = require('../../app');
 require('should');
 require('tap').mochaGlobals();
 
 describe('For the route for getting many todos GET: (/todo)', () => {
   let app;
+  let authorization = '';
   const ids = [];
 
   before(async () => {
     // initialize the backend applicaiton
     app = await build();
 
+    const payload = {
+      username: 'testuser',
+      password: 'password1234567890'
+    }
+
+    await app.inject({
+      method: 'POST',
+      url: '/user',
+      payload
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/login',
+      payload
+    });
+    const {data:token} = response.json();
+
+    authorization=`Bearer ${token}`
+
+    
+
     for (let i = 0; i < 5; i++) {
       const response = await app.inject({
         method: 'POST',
         url: '/todo',
+        headers: {
+          authorization
+        },
         payload: {
           text: `Todo ${i}`,
           done: false
@@ -37,6 +63,8 @@ describe('For the route for getting many todos GET: (/todo)', () => {
       await Todo.findOneAndDelete({ id });
     }
 
+    await User.findOneAndDelete({username:'testuser'});
+
     await mongoose.connection.close();
   });
 
@@ -44,7 +72,10 @@ describe('For the route for getting many todos GET: (/todo)', () => {
   it('it should return { success: true, data: array of todos } and has a status code of 200 when called using GET and has a default limit of 3 items', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: '/todo'
+      url: '/todo',
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -73,7 +104,10 @@ describe('For the route for getting many todos GET: (/todo)', () => {
   it('it should return { success: true, data: array of todos } and has a status code of 200 when called using GET and has a limit of 2 items', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: '/todo?limit=2'
+      url: '/todo?limit=2',
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -102,7 +136,10 @@ describe('For the route for getting many todos GET: (/todo)', () => {
   it('it should return { success: true, data: array of todos } and has a status code of 200 when called using GET and has a default limit of 3 items and it should be in descending order', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: '/todo'
+      url: '/todo',
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -124,7 +161,10 @@ describe('For the route for getting many todos GET: (/todo)', () => {
   it('it should return { success: true, data: array of todos } and has a status code of 200 when called using GET and has a default limit of 3 items and it should be in descending order where the first item should be the latest updated item in the database', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: '/todo'
+      url: '/todo',
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -143,7 +183,9 @@ describe('For the route for getting many todos GET: (/todo)', () => {
     }
 
     const todos = await Todo
-      .find()
+      .find({
+        username: 'testuser'
+      })
       .limit(3)
       .sort({
         dateUpdated: -1
@@ -165,7 +207,10 @@ describe('For the route for getting many todos GET: (/todo)', () => {
 
     const response = await app.inject({
       method: 'GET',
-      url: `/todo?startDate=${startDate}`
+      url: `/todo?startDate=${startDate}`,
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -196,7 +241,10 @@ describe('For the route for getting many todos GET: (/todo)', () => {
 
     const response = await app.inject({
       method: 'GET',
-      url: `/todo?endDate=${endDate}`
+      url: `/todo?endDate=${endDate}`,
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
